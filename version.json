@@ -1,0 +1,7 @@
+{
+  "versionCode": 4,
+  "versionName": "1.0.4",
+  "pwaVersion": "1.0.4",
+  "apkUrl": "https://donaldmfriend.github.io/qmat-trips-site/QMAT-Trips.apk",
+  "releaseNotes": "Added automatic in-app update detection, one-tap APK installer, silent OAuth token refresh, and offline trip caching."
+}

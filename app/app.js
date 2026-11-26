@@ -1,5 +1,6 @@
 // QMAT Trips — iPhone / Web PWA sharing the exact QMAT Trips Google Sheets & Drive schema
 
+const APP_VERSION = '1.0.4';
 const WEB_CLIENT_ID = '501018021150-m3g9dmh9nr98buj9muq4ao7aru89jto9.apps.googleusercontent.com';
 const SCOPES = [
   'https://www.googleapis.com/auth/spreadsheets',
@@ -1534,6 +1535,7 @@ function openGlobalSettingsModal() {
     <button class="btn-outline" id="copySheetUrlBtn" style="margin-bottom:10px;">Copy Shareable Sheet URL</button>
     <div class="field"><label>Switch to another Sheet URL</label><input id="switchUrlIn" placeholder="https://docs.google.com/spreadsheets/d/..." /></div>
     <button class="btn-primary" id="switchSheetBtn" style="margin-bottom:8px;">Connect New Sheet</button>
+    <button class="btn-outline" id="checkUpdatesWebBtn" style="margin-bottom:8px;">Check for Updates (v${APP_VERSION})</button>
     <div class="row-2">
       <button class="btn-outline" id="changeSheetBtn">Change Sheet</button>
       <button class="btn-outline" id="signOutBtn" style="color:var(--red);">Sign Out</button>
@@ -1545,6 +1547,9 @@ function openGlobalSettingsModal() {
     document.getElementById('switchSheetBtn').addEventListener('click', () => {
       const u = document.getElementById('switchUrlIn').value;
       closeModal(); connectMasterOrExisting(false, u);
+    });
+    document.getElementById('checkUpdatesWebBtn').addEventListener('click', () => {
+      closeModal(); checkForWebUpdates(true);
     });
     document.getElementById('changeSheetBtn').addEventListener('click', () => {
       state.spreadsheetId = ''; state.spreadsheetUrl = ''; saveStored(); closeModal(); render();
@@ -1978,12 +1983,62 @@ function openPhotoViewerModal(photo) {
   });
 }
 
+function compareSemver(a, b) {
+  const pa = String(a || '').replace(/^v/, '').split('.').map((n) => parseInt(n, 10) || 0);
+  const pb = String(b || '').replace(/^v/, '').split('.').map((n) => parseInt(n, 10) || 0);
+  const len = Math.max(pa.length, pb.length);
+  for (let i = 0; i < len; i++) {
+    const va = pa[i] || 0;
+    const vb = pb[i] || 0;
+    if (va !== vb) return va - vb;
+  }
+  return 0;
+}
+
+async function checkForWebUpdates(manual = false) {
+  try {
+    const res = await fetch(`../version.json?t=${Date.now()}`, { cache: 'no-store' });
+    if (!res.ok) return;
+    const info = await res.json();
+    const remoteVer = info.pwaVersion || info.versionName;
+    if (compareSemver(remoteVer, APP_VERSION) > 0) {
+      showModal(`
+        <h3>Update available</h3>
+        <div style="color:var(--cobalt); font-weight:700; margin-bottom:8px;">QMAT Trips &middot; v${esc(remoteVer)}</div>
+        <p class="muted">${esc(info.releaseNotes || 'Improvements and bug fixes.')}</p>
+        <p class="muted">Your trips and settings will be preserved.</p>
+        <div class="row-2">
+          <button class="btn-outline" id="webUpdLater">Remind me later</button>
+          <button class="btn-primary" id="webUpdNow">Update &amp; reload</button>
+        </div>`, () => {
+        document.getElementById('webUpdLater').addEventListener('click', closeModal);
+        document.getElementById('webUpdNow').addEventListener('click', async () => {
+          if ('caches' in window) {
+            const keys = await caches.keys();
+            await Promise.all(keys.map((k) => caches.delete(k)));
+          }
+          if ('serviceWorker' in navigator) {
+            const reg = await navigator.serviceWorker.getRegistration();
+            await reg?.update().catch(() => {});
+          }
+          window.location.reload();
+        });
+      });
+    } else if (manual) {
+      showToast(`You're on the latest version (v${APP_VERSION}).`);
+    }
+  } catch (_) {
+    if (manual) showToast('Could not check for updates right now.');
+  }
+}
+
 // --- Boot ---
 loadStored();
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').catch(() => {});
+  navigator.serviceWorker.register('./sw.js').then((reg) => reg.update().catch(() => {})).catch(() => {});
 }
 render();
+checkForWebUpdates(false);
 if (state.session.accessToken && Date.now() < state.session.expiresAt && state.spreadsheetId) {
   refreshAllTrips();
 } else if (state.session.accessToken && state.spreadsheetId) {

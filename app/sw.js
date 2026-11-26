@@ -1,4 +1,4 @@
-const CACHE_NAME = 'qmat-trips-pwa-v1';
+const CACHE_NAME = 'qmat-trips-pwa-v1.0.4';
 const ASSETS = [
   './',
   './index.html',
