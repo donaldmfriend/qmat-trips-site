@@ -63,17 +63,23 @@ function loadStored() {
     if (saved.spreadsheetUrl) state.spreadsheetUrl = saved.spreadsheetUrl;
     if (saved.selectedIdentity) state.selectedIdentity = saved.selectedIdentity;
     if (saved.dismissedInstallBanner) state.dismissedInstallBanner = true;
+    if (Array.isArray(saved.trips)) state.trips = saved.trips;
+    if (saved.workspaces && typeof saved.workspaces === 'object') state.workspaces = saved.workspaces;
   } catch (_) {}
 }
 
 function saveStored() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({
-    session: state.session,
-    spreadsheetId: state.spreadsheetId,
-    spreadsheetUrl: state.spreadsheetUrl,
-    selectedIdentity: state.selectedIdentity,
-    dismissedInstallBanner: state.dismissedInstallBanner
-  }));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      session: state.session,
+      spreadsheetId: state.spreadsheetId,
+      spreadsheetUrl: state.spreadsheetUrl,
+      selectedIdentity: state.selectedIdentity,
+      dismissedInstallBanner: state.dismissedInstallBanner,
+      trips: state.trips,
+      workspaces: state.workspaces
+    }));
+  } catch (_) {}
 }
 
 function showToast(msg) {
@@ -181,16 +187,20 @@ function signInWithGoogle(promptType = 'select_account') {
   });
 }
 
-async function getValidToken() {
-  if (state.session.accessToken && Date.now() < state.session.expiresAt) {
+async function getValidToken(forceRefresh = false) {
+  if (!forceRefresh && state.session.accessToken && Date.now() < state.session.expiresAt) {
     return state.session.accessToken;
   }
-  throw new Error('AUTH_EXPIRED');
+  try {
+    return await signInWithGoogle('');
+  } catch (_) {
+    throw new Error('Tap Retry / Re-auth to refresh Google access.');
+  }
 }
 
 async function apiFetch(url, options = {}) {
-  const token = await getValidToken();
-  const res = await fetch(url, {
+  let token = await getValidToken(false);
+  let res = await fetch(url, {
     ...options,
     headers: {
       Authorization: `Bearer ${token}`,
@@ -201,7 +211,14 @@ async function apiFetch(url, options = {}) {
     state.session.accessToken = '';
     state.session.expiresAt = 0;
     saveStored();
-    throw new Error('Google session expired. Tap Refresh Sign-In.');
+    token = await getValidToken(true);
+    res = await fetch(url, {
+      ...options,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        ...(options.headers || {})
+      }
+    });
   }
   if (!res.ok) {
     let msg = `API error (${res.status})`;
@@ -730,6 +747,7 @@ async function refreshAllTrips() {
     state.workspaces = workspaces;
     state.syncStatus = 'synced';
     state.syncError = '';
+    saveStored();
   } catch (err) {
     state.syncStatus = 'error';
     state.syncError = err.message;
