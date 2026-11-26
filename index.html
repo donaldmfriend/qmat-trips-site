@@ -3,20 +3,33 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>QMAT Trips</title>
+  <title>QMAT Trips — Android &amp; iPhone</title>
   <link rel="icon" type="image/png" href="./qmat-trips-logo.png" />
+  <link rel="apple-touch-icon" href="./qmat-trips-logo.png" />
   <style>
+    * { box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; background: #F8FAFC; color: #0F172A; line-height: 1.6; }
-    .wrap { max-width: 720px; margin: 40px auto; padding: 32px; background: #FFFFFF; border-radius: 20px; border: 1px solid #E2E8F0; box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05); }
+    .wrap { max-width: 740px; margin: 32px auto; padding: 28px; background: #FFFFFF; border-radius: 22px; border: 1px solid #E2E8F0; box-shadow: 0 6px 24px rgba(15, 23, 42, 0.06); }
     .hero { display: flex; align-items: center; gap: 18px; margin-bottom: 18px; flex-wrap: wrap; }
     .logo { width: 84px; height: 84px; border-radius: 20px; border: 1px solid #E2E8F0; object-fit: contain; background: #FFFFFF; }
     h1 { color: #2563EB; margin: 4px 0 0; font-size: 28px; }
     a { color: #2563EB; }
     .badge { display: inline-block; background: #EFF6FF; color: #2563EB; padding: 4px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; }
-    .cta-box { background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 14px; padding: 20px; margin: 22px 0; }
-    .btn { display: inline-block; background: #2563EB; color: #FFFFFF !important; text-decoration: none; font-weight: 700; padding: 14px 22px; border-radius: 12px; font-size: 16px; }
+    .cta-box { background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 16px; padding: 20px; margin: 22px 0; }
+    .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 580px) { .btn-row { grid-template-columns: 1fr; } }
+    .btn { display: flex; align-items: center; justify-content: center; gap: 8px; background: #2563EB; color: #FFFFFF !important; text-decoration: none; font-weight: 700; padding: 14px 18px; border-radius: 12px; font-size: 15px; border: none; cursor: pointer; text-align: center; }
     .btn:hover { background: #1D4ED8; }
-    .meta { font-size: 13px; color: #475569; margin-top: 10px; }
+    .btn-apple { background: #0F172A; }
+    .btn-apple:hover { background: #1E293B; }
+    .meta { font-size: 13px; color: #475569; margin-top: 12px; }
+    .apple-guide { display: none; margin-top: 16px; background: #FFFFFF; border: 2px solid #0F172A; border-radius: 14px; padding: 18px; }
+    .apple-guide.open { display: block; }
+    .apple-guide h3 { margin: 0 0 8px; color: #0F172A; font-size: 17px; }
+    .apple-step { display: flex; align-items: flex-start; gap: 10px; margin: 10px 0; font-size: 14px; }
+    .step-num { min-width: 24px; height: 24px; border-radius: 999px; background: #2563EB; color: #FFFFFF; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; margin-top: 2px; }
+    .share-pill { display: inline-block; background: #F1F5F9; border: 1px solid #CBD5E1; border-radius: 6px; padding: 1px 7px; font-weight: 600; font-size: 13px; }
+    .launch-row { margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
     h2 { font-size: 18px; margin-top: 24px; color: #0F172A; }
   </style>
 </head>
@@ -25,7 +38,7 @@
     <div class="hero">
       <img class="logo" src="./qmat-trips-logo.png" alt="QMAT Trips Logo" />
       <div>
-        <span class="badge">Android App · v1.0.2 · com.qmat.trips</span>
+        <span class="badge">Android APK &amp; iPhone App · v1.0.2</span>
         <h1>QMAT Trips</h1>
       </div>
     </div>
@@ -33,25 +46,72 @@
     <p>QMAT Trips is our private group travel app for managing shared trip expenses, multi-currency settlements, daily itineraries, and photo-only shared trip albums backed by a single shared Google Sheet and Google Drive.</p>
 
     <div class="cta-box">
-      <a class="btn" href="./QMAT-Trips.apk" download="QMAT-Trips.apk">Download QMAT Trips APK (v1.0.2)</a>
-      <div class="meta">Android 8.0+ · Signed Release APK (13.5 MB) · SHA-1: <code>ab1ba606cd92954476d39aa456f4abba668eade0</code></div>
+      <div class="btn-row">
+        <a class="btn" href="./QMAT-Trips.apk" download="QMAT-Trips.apk">
+          <span>Download for Android (.apk)</span>
+        </a>
+        <button type="button" class="btn btn-apple" id="appleBtn">
+          <span>Get for iPhone / iPad (Apple)</span>
+        </button>
+      </div>
+      <div class="meta">Android 8.0+ (v1.0.2, 13.5 MB) &middot; Apple iOS Safari Home Screen App (syncs live with the same Google Sheet).</div>
+
+      <div class="apple-guide" id="appleGuide">
+        <h3>How to Install QMAT Trips on iPhone / iPad</h3>
+        <p style="margin:0 0 10px; font-size:14px; color:#475569;">
+          Apple doesn't allow direct `.ipa` downloads from websites, so our Apple version installs straight from <strong>Safari</strong> onto your Home Screen with the QMAT Trips icon (free, never expires, shares the exact same trips &amp; expenses with Android):
+        </p>
+        <div class="apple-step">
+          <span class="step-num">1</span>
+          <div>Tap <strong>Open QMAT Trips iPhone App</strong> below in <strong>Safari</strong> (if you opened this link inside Messages, Instagram, or WhatsApp, tap the Safari compass icon first to open it in Safari).</div>
+        </div>
+        <div class="apple-step">
+          <span class="step-num">2</span>
+          <div>In Safari, tap the <span class="share-pill">Share &#x2191;</span> button at the bottom of your screen (or top-right on iPad).</div>
+        </div>
+        <div class="apple-step">
+          <span class="step-num">3</span>
+          <div>Scroll down and tap <span class="share-pill">+ Add to Home Screen</span>, then tap <strong>Add</strong>.</div>
+        </div>
+        <div class="apple-step">
+          <span class="step-num">4</span>
+          <div>Open <strong>QMAT Trips</strong> from your Home Screen, tap <strong>Sign in with Google</strong>, and paste Donald's shared Google Sheet link.</div>
+        </div>
+        <div class="launch-row">
+          <a class="btn" href="./app/">Open QMAT Trips iPhone App &rarr;</a>
+        </div>
+      </div>
     </div>
 
-    <h2>Quick Setup for Friends</h2>
+    <h2>Quick Setup After Installing</h2>
     <ol>
-      <li>Tap <strong>Download QMAT Trips APK (v1.0.2)</strong> above and open the downloaded file on your Android phone (allow installs from your browser if prompted).</li>
-      <li>Open <strong>QMAT Trips</strong> and tap <strong>Sign in with Google</strong>. If Google shows an "unverified app" screen, tap <strong>Advanced → Go to QMAT Trips (unsafe) → Continue</strong>.</li>
+      <li>Open <strong>QMAT Trips</strong> and tap <strong>Sign in with Google</strong>. If Google shows an "unverified app" screen, tap <strong>Advanced &rarr; Go to QMAT Trips (unsafe) &rarr; Continue</strong>.</li>
       <li>Paste Donald's shared <strong>QMAT Trips Master</strong> Google Sheet link and tap <strong>Join Shared QMAT Sheet</strong>.</li>
     </ol>
 
-    <h2>Features</h2>
+    <h2>Shared Features (Android &amp; iPhone)</h2>
     <ul>
       <li><strong>Shared Expenses &amp; Settlements:</strong> Equal and ad-hoc splits, mid-trip FX rates, Couple View, and Who Owes Who settlements.</li>
       <li><strong>Madeira-Style Daily Agenda:</strong> Auto-date daily view, day hero images, Shared Group Plan, and per-person draft columns.</li>
-      <li><strong>Shared Trip Photos:</strong> Photos-only album stored in Google Drive with one-tap Download to Phone.</li>
+      <li><strong>Shared Trip Photos:</strong> Photos-only album stored in Google Drive with save/download to phone.</li>
     </ul>
 
     <p><a href="./privacy.html">Privacy Policy</a></p>
   </div>
+
+  <script>
+    const appleBtn = document.getElementById('appleBtn');
+    const appleGuide = document.getElementById('appleGuide');
+    appleBtn.addEventListener('click', () => {
+      appleGuide.classList.toggle('open');
+      if (appleGuide.classList.contains('open')) {
+        appleGuide.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    });
+    // Auto-open Apple instructions if the visitor is already on iPhone/iPad
+    if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+      appleGuide.classList.add('open');
+    }
+  </script>
 </body>
 </html>

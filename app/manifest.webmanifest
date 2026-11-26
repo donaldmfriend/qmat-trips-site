@@ -1,0 +1,18 @@
+{
+  "name": "QMAT Trips",
+  "short_name": "QMAT Trips",
+  "description": "Shared group trip expenses, Madeira-style daily itinerary, and photos-only album backed by Google Sheets & Drive.",
+  "start_url": "/qmat-trips-site/app/",
+  "scope": "/qmat-trips-site/app/",
+  "display": "standalone",
+  "background_color": "#F8FAFC",
+  "theme_color": "#2563EB",
+  "icons": [
+    {
+      "src": "../qmat-trips-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
